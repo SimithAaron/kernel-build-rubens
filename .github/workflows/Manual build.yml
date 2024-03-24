@@ -63,7 +63,7 @@ jobs:
           path: out/android12-5.10/dist/boot-gz.tar.gz
   
       - name: Send Artifact to Telegram
-        uses: appleboy/telegram-action@v0.2.1
+        uses: appleboy/telegram-action@master
         with:
           token: ${{ secrets.BOT_TOKEN }}
           chat_id: ${{ secrets.CHAT_ID }}
