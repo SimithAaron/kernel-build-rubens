@@ -62,24 +62,3 @@ jobs:
           name: 5.10.66_${{ env.KSU_VERSION }}
           path: out/android12-5.10/dist/boot-gz.tar.gz
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: latest
-          name: 5.10.66-${{ env.KSU_VERSION }} Kernel for Rubens
-          files: out/android12-5.10/dist/boot-gz.tar.gz
-
-      - name: Set environment variable
-        run: |
-          echo "https://github.com/uchengX/kernel-build-rubens/releases/download/latest/boot-gz.tar.gz" >> url.txt
-          echo "MESSAGE_FILE_PATH=$(cat url.txt)" >> $GITHUB_ENV
-
-      - name: Send message via Telegram
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: "构建任务已完成，当前构建版本为：${{ env.KSU_VERSION }}，请点击以下链接进行下载: ${{ env.MESSAGE_FILE_PATH }}"
-
