@@ -61,4 +61,10 @@ jobs:
         with:
           name: 5.10.66_${{ env.KSU_VERSION }}
           path: out/android12-5.10/dist/boot-gz.tar.gz
-
+  
+      - name: Send Artifact to Telegram
+        uses: ./.github/actions/telegram-bot
+        with:
+          token: ${{ secrets.BOT_TOKEN }}
+          chat_id: ${{ secrets.CHAT_ID }}
+          file_path: ${{ artifacts.5.10.66_${{ env.KSU_VERSION }} }}/boot-gz.tar.gz
