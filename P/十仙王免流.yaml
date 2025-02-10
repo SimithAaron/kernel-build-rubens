@@ -1,0 +1,699 @@
+#十：此为链式，◎，控制UDP。🇨🇳国内，选择国内节点。🌍国外，选择国外非免流节点即可翻墙且免流。其他的不懂不要乱碰
+proxies:
+  - name: "🇨🇳K广东"
+    type: http
+    server: 220.181.111.189
+    port: 443
+    headers:
+      Host: "153.3.236.22:443"
+      X-T5-Auth: 683556433
+      User-Agent: "okhttp/3.11.0 Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002) baiduboxapp/11.0.5.12 (Baidu; P1 11)"
+        
+  - name: "🇨🇳K江苏南京1"
+    type: http
+    server: 220.181.7.1
+    port: 443
+    headers:
+      X-T5-Auth: "683556433"
+      Host: 153.3.236.22:443
+      User-Agent:
+        "okhttp/3.11.0 Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)
+        baiduboxapp/11.0.5.12 (Baidu; P1 11)"
+      
+  - name: "🇨🇳K苏州"
+    type: http
+    server: 180.97.93.202
+    port: 443
+    headers:
+      X-T5-Auth: "683556433"
+      Host: 153.3.236.22:443
+      User-Agent:
+        "okhttp/3.11.0 Dalvik/2.1.0 (Linux; U; Android 11; Redmi K30 5G Build/RKQ1.200826.002)
+        baiduboxapp/11.0.5.12 (Baidu; P1 11)"
+
+
+  - name: "🇨🇳云广州"
+    type: http
+    server: 14.215.182.75
+    port: 443
+    headers:
+      X-T5-Auth: 683556433
+      Host: 153.3.236.22:443
+
+   
+proxy-providers:
+  
+  国内:
+    type: http
+    url: "订阅"
+    path: ./proxy_providers/国内.yaml
+    interval: 360000
+    health-check:
+      enable: true
+      url: https://api.v2fly.org/checkConnection.svgz
+      interval: 300
+      
+
+      
+  国外:
+    type: http
+    url: "订阅"
+    path: ./proxy_providers/国外.yaml
+    interval: 360000
+    health-check:
+      enable: true
+      url: https://api.v2fly.org/checkConnection.svgz
+      interval: 300
+
+
+proxy-groups:
+  - name: ◎
+    type: select
+    proxies:
+    - REJECT
+    - 🇨🇳节点
+    - DIRECT
+      
+  - name: 🇨🇳国内
+    type: select
+    proxies:
+    - 🇨🇳K广东
+    - 🇨🇳K江苏南京1
+    - 🇨🇳K苏州
+
+    - 🇨🇳云广州
+    - 🇨🇳节点
+    use:
+    - 国内
+    
+  - name: 🌍国外
+    type: select
+    proxies:
+    - 🌍不免自动
+    - 🇨🇳国内
+    use:
+    - 国外
+      
+ 
+
+                             
+  - name: 🇨🇳百度
+    type: select
+    proxies:
+    - 🇨🇳K广东
+    - 🇨🇳K江苏南京1
+    - 🇨🇳K苏州
+
+    - 🇨🇳云广州
+    - 🇨🇳节点
+      
+  
+  - name: 十
+    type: select
+    proxies:
+    - 🇨🇳国内
+    - 🌍国外Ⅰ
+    - REJECT
+    - DIRECT
+          
+                  
+  - name: 🌍不免
+    type: select
+    proxies:
+    - 🌍不免自动
+    use:
+    - 国外
+
+            
+  - name: 🇨🇳节点
+    type: select
+    proxies:
+    use:
+    - 国内
+
+      
+  - name: 🌍不免Ⅰ
+    type: select
+    proxies:
+    - 🌍不免自动
+    use:
+    - 国外
+
+
+      
+  - name: ♻️百度
+    type: url-test
+    url: https://api.v2fly.org/checkConnection.svgz
+    interval: 5
+    tolerance: 50
+    proxies:
+    - 🇨🇳K广东
+    - 🇨🇳K江苏南京1
+    - 🇨🇳K苏州
+
+    - 🇨🇳云广州
+      
+  - name: 🌍不免自动
+    type: url-test
+    url: https://api.v2fly.org/checkConnection.svgz
+    interval: 3
+    tolerance: 50
+    proxies:
+    use:
+    - 国外
+
+    filter: 
+      
+  - name: 🌍国外Ⅰ
+    type: relay
+    proxies:
+    - 🇨🇳国内
+    - 🌍国外   
+    
+  - name: 🌍国外Ⅱ
+    type: relay
+    proxies:
+    - 🇨🇳百度
+    - 🌍不免
+
+
+rules:
+  - NETWORK,UDP,◎
+  # > google 部分服务直连
+  - AND,((DST-PORT,5228-5230),(NETWORK,TCP),(DOMAIN-KEYWORD,google)),🇨🇳国内
+
+  - 'DOMAIN-SUFFIX,services.googleapis.cn,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,🌍国外Ⅰ'
+  - 'DOMAIN,safebrowsing.urlsec.qq.com,🇨🇳国内'
+  - 'DOMAIN,safebrowsing.googleapis.com,🇨🇳国内'
+  - 'DOMAIN,developer.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,digicert.com,🌍国外Ⅰ'
+  - 'DOMAIN,ocsp.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN,ocsp.comodoca.com,🌍国外Ⅰ'
+  - 'DOMAIN,ocsp.usertrust.com,🌍国外Ⅰ'
+  - 'DOMAIN,ocsp.sectigo.com,🌍国外Ⅰ'
+  - 'DOMAIN,ocsp.verisign.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,apple-dns.net,🌍国外Ⅰ'
+  - 'DOMAIN,testflight.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN,sandbox.itunes.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN,itunes.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,apps.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blobstore.apple.com,🌍国外Ⅰ'
+  - 'DOMAIN,cvws.icloud-content.com,🌍国外Ⅰ'
+
+
+  - 'DOMAIN-SUFFIX,mzstatic.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,itunes.apple.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,icloud.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,icloud-content.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,me.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,aaplimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,cdn20.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,cdn-apple.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,akadns.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,akamaiedge.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,edgekey.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,mwcloudcdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,mwcname.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,apple.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,apple-cloudkit.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,apple-mapkit.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,126.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,126.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,127.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,163.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,360buyimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,36kr.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,acfun.tv,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,air-matters.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,aixifan.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,alicdn,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,alipay,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,taobao,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,amap.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,autonavi.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,baidu,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,bdimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,bdstatic.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,bilibili.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,bilivideo.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,caiyunapp.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,clouddn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,cnbeta.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,cnbetacdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,cootekservice.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,csdn.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ctrip.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,dgtle.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,dianping.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,douban.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,doubanio.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,duokan.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,easou.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ele.me,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,feng.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,fir.im,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,frdic.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,g-cores.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,godic.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,gtimg.com,🇨🇳国内'
+  - 'DOMAIN,cdn.hockeyapp.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,hongxiu.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,hxcdn.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,iciba.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ifeng.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ifengimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ipip.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,iqiyi.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,jd.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,jianshu.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,knewone.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,le.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,lecloud.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,lemicp.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,licdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,luoo.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,meituan.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,meituan.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,mi.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,miaopai.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,microsoft.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,microsoftonline.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,miui.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,miwifi.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,mob.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,netease.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,office.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,office365.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,officecdn,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,oschina.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ppsimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,pstatp.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qcloud.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qdaily.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qdmm.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qhimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qhres.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qidian.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qihucdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qiniu.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qiniucdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qiyipic.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qq.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,qqurl.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,rarbg.to,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ruguoapp.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,segmentfault.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,sinaapp.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,smzdm.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,snapdrop.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,sogou.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,sogoucdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,sohu.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,soku.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,speedtest.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,sspai.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,suning.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,taobao.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,tencent.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,tenpay.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,tianyancha.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,tmall.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,tudou.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,umetrip.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,upaiyun.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,upyun.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,veryzhun.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,weather.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,weibo.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,xiami.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,xiami.net,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,xiaomicp.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ximalaya.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,xmcdn.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,xunlei.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,yhd.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,yihaodianimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,yinxiang.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,ykimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,youdao.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,youku.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,zealer.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,zhihu.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,zhimg.com,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,zimuzu.tv,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,zoho.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,amazon,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,google,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,gmail,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,youtube,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,facebook,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fb.me,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fbcdn.net,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,twitter,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,instagram,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,dropbox,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,twimg.com,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,blogspot,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,youtu.be,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,whatsapp,🌍国外Ⅰ'
+  
+  - 'DOMAIN-KEYWORD,admarvel,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,admaster,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,adsage,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,adsmogo,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,adsrvmedia,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,adwords,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,adservice,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,appsflyer.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,domob,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,doubleclick.net,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,duomeng,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,dwtrack,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,guanggao,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,lianmeng,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,mmstat.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,mopub,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,omgmta,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,openx,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,partnerad,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,pingfore,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,supersonicads,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,uedas,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,umeng,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,usage,🇨🇳国内'
+  - 'DOMAIN-SUFFIX,vungle.com,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,wlmonitor,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,zjtoolbar,🇨🇳国内'
+
+  - 'DOMAIN-SUFFIX,9to5mac.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,abpchina.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,adblockplus.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,adobe.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,akamaized.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,alfredapp.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,amplitude.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ampproject.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,android.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,angularjs.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,aolcdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,apkpure.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,appledaily.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,appshopper.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,appspot.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,arcgis.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,archive.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,armorgames.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,aspnetcdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,att.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,awsstatic.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,azureedge.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,azurewebsites.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bing.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bintray.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bit.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bit.ly,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bitbucket.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bjango.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bkrtx.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blog.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blogcdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blogger.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blogsmithmedia.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blogspot.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,blogspot.hk,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,bloomberg.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,box.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,box.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cachefly.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,chromium.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cl.ly,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cloudflare.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cloudfront.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cloudmagic.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cmail19.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cnet.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,cocoapods.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,comodoca.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,crashlytics.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,culturedcode.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,d.pr,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,danilo.to,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,dayone.me,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,db.tt,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,deskconnect.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,disq.us,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,disqus.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,disquscdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,dnsimple.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,docker.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,dribbble.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,droplr.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,duckduckgo.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,dueapp.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,dytt8.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,edgecastcdn.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,edgekey.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,edgesuite.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,engadget.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,entrust.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,eurekavpt.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,evernote.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fabric.io,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fast.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fastly.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fc2.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,feedburner.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,feedly.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,feedsportal.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,fiftythree.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,firebaseio.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,flexibits.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,flickr.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,flipboard.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,g.co,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gabia.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,geni.us,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gfx.ms,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ggpht.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ghostnoteapp.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,git.io,🌍国外Ⅰ'
+  - 'DOMAIN-KEYWORD,github,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,globalsign.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gmodules.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,godaddy.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,golang.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gongm.in,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,goo.gl,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,goodreaders.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,goodreads.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gravatar.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gstatic.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,gvt0.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,hockeyapp.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,hotmail.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,icons8.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ifixit.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ift.tt,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ifttt.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,iherb.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,imageshack.us,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,img.ly,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,imgur.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,imore.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,instapaper.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ipn.li,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,is.gd,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,issuu.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,itgonglun.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,itun.es,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ixquick.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,j.mp,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,js.revsci.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,jshint.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,jtvnw.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,justgetflux.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,kat.cr,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,klip.me,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,libsyn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,linkedin.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,line-apps.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,linode.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,lithium.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,littlehj.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,live.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,live.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,livefilestore.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,llnwd.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,macid.co,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,macromedia.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,macrumors.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,mashable.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,mathjax.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,medium.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,mega.co.nz,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,mega.nz,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,megaupload.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,microsofttranslator.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,mindnode.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,mobile01.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,modmyi.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,msedge.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,myfontastic.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,name.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,nextmedia.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,nsstatic.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,nssurge.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,nyt.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,nytimes.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,omnigroup.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,onedrive.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,onenote.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ooyala.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,openvpn.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,openwrt.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,orkut.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,osxdaily.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,outlook.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ow.ly,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,paddleapi.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,parallels.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,parse.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,pdfexpert.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,periscope.tv,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,pinboard.in,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,pinterest.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,pixelmator.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,pixiv.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,playpcesor.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,playstation.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,playstation.com.hk,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,playstation.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,playstationnetwork.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,pushwoosh.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,rime.im,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,servebom.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,sfx.ms,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,shadowsocks.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,sharethis.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,shazam.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,skype.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,smartdns🌍国外Ⅰ.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,smartmailcloud.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,sndcdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,sony.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,soundcloud.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,sourceforge.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,spotify.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,squarespace.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,sstatic.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,st.luluku.pw,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,stackoverflow.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,startpage.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,staticflickr.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,steamcommunity.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,symauth.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,symcb.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,symcd.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tapbots.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tapbots.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tdesktop.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,techcrunch.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,techsmith.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,thepiratebay.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,theverge.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,time.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,timeinc.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tiny.cc,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tinypic.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tmblr.co,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,todoist.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,trello.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,trustasiassl.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tumblr.co,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tumblr.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tweetdeck.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,tweetmarker.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,twitch.tv,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,txmblr.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,typekit.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ubertags.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ublock.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ubnt.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ulyssesapp.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,urchin.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,usertrust.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,v.gd,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,v2ex.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vimeo.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vimeocdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vine.co,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vivaldi.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vox-cdn.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vsco.co,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,vultr.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,w.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,w3schools.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,webtype.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wikiwand.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wikileaks.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wikimedia.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wikipedia.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wikipedia.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,windows.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,windows.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wire.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wordpress.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,workflowy.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wp.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wsj.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,wsj.net,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,xda-developers.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,xeeno.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,xiti.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,yahoo.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,yimg.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ying.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,yoyo.org,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,ytimg.com,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,telegra.ph,🌍国外Ⅰ'
+  - 'DOMAIN-SUFFIX,telegram.org,🌍国外Ⅰ'
+  - 'IP-CIDR,91.108.4.0/22,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,91.108.8.0/21,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,91.108.16.0/22,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,91.108.56.0/22,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,149.154.160.0/20,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR6,2001:67c:4e8::/48,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR6,2001:b28:f23d::/48,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR6,2001:b28:f23f::/48,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,120.232.181.162/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,120.241.147.226/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,120.253.253.226/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,120.253.255.162/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,120.253.255.34/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,120.253.255.98/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,180.163.150.162/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,180.163.150.34/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,180.163.151.162/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,180.163.151.34/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,203.208.39.0/24,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,203.208.40.0/24,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,203.208.41.0/24,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,203.208.43.0/24,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,203.208.50.0/24,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,220.181.174.162/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,220.181.174.226/32,🌍国外Ⅰ,no-resolve'
+  - 'IP-CIDR,220.181.174.34/32,🌍国外Ⅰ,no-resolve'
+ 
+
+
+
+  - 'DOMAIN-SUFFIX,cn,🇨🇳国内'
+  - 'DOMAIN-KEYWORD,-cn,🇨🇳国内'
+
+  - GEOSITE,CN,🇨🇳国内
+  
+  - GEOIP,CN,🇨🇳国内,no-resolve
+
+  
+  - MATCH,🌍国外Ⅰ
